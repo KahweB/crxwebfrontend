@@ -35,6 +35,14 @@ export default function Sidebar() {
               Ayarlar
             </Link>
           </li>
+          <li>
+            <Link
+              href="/dashboard/devices/newdevice"
+              className={`block p-2 rounded ${pathname === '/dashboard/devices/newdevice' ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'}`}
+            >
+              Cihaz Ekle
+            </Link>
+          </li>
         </ul>
       </nav>
     </aside>

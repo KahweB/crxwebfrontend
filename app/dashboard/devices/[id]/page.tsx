@@ -1,9 +1,13 @@
-import React from 'react'
+import DeviceDetail from './DeviceDetail'
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
+type Props = {
+  params: {
+    id: string
+  }
 }
 
-export default page
+export default async function Page({ params }: Props) {
+  // await Promise.resolve() kullanarak params'ın Promise'ini çözüyoruz
+  await Promise.resolve()
+  return <DeviceDetail deviceId={params.id} />
+}

@@ -1,40 +1,67 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
-export default function DeviceList() {
-  const [devices, setDevices] = useState([
-    { id: 1, name: 'cihaz1', status: 'Aktif' },
-    { id: 2, name: 'cihaz2', status: 'Pasif' },
-  ]);
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
-  // Örnek API çağrısı (opsiyonel)
-  // useEffect(() => {
-  //   fetch('/api/devices')
-  //     .then((res) => res.json())
-  //     .then((data) => setDevices(data));
-  // }, []);
+interface CrxDevice {
+  id: number;
+  userId: number;
+  macId: string;
+  name: string;
+  createdAt: string;
+}
+
+export default function DeviceList() {
+  const [devices,setDevices] = useState<CrxDevice[]>([]);
+  const userId:number = 5;
+  const router = useRouter();
+  
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5068/api/crxdevices/user/${userId}`);
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0){
+          setDevices(data);
+        } 
+      } catch (error:any) {
+        if (error.response && error.response.status === 404) {
+          console.log("user e ait cihaz yok yeni cihaz ekleme sayfasina yonlendiriliyor.");
+          router.push('/dashboard/devices/newdevice');
+        }
+      }
+    };
+    fetchDevices();
+  }, [userId]);
+
+// seçilen cihazın detay sayfasına yönlendir
+  const handleSelect = (id: number) => {
+    
+    router.push(`/dashboard/devices/${id}`);
+  };
+ 
 
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <h2 className="text-lg font-semibold mb-4">Cihaz Listesi</h2>
-      <table className="w-full">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2 text-left">MacId</th>
-            <th className="p-2 text-left">Cihaz Adı</th>
-            <th className="p-2 text-left"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {devices.map((device) => (
-            <tr key={device.id} className="border-t">
-              <td className="p-2">{device.id}</td>
-              <td className="p-2">{device.name}</td>
-              <td className="p-2"><Button>Göster</Button></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  <div className="p-10">
+      <h1 className="text-xl font-bold mb-5">Cihazlarım</h1>
+      <ul className="space-y-2">
+        {devices.map((device) => (
+          <li key={device.id} className="border p-4 rounded shadow flex justify-between items-center">
+            <div>
+              <p><strong>Ad:</strong> {device.name}</p>
+              <p><strong>Mac ID:</strong> {device.macId}</p>
+              <p><strong>Eklenme:</strong> {new Date(device.createdAt).toLocaleString()}</p>
+            </div>
+            <button
+              onClick={() => handleSelect(device.id)}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Seç
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
